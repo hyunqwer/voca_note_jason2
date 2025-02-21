@@ -4,6 +4,7 @@
 // [1] JSON 데이터 로드
 // -----------------------------------
 let folderFiles = {};
+const defaultFolder = "Phonics"; // 첫 화면에서 기본 폴더 설정
 
 async function loadFolderFiles() {
   try {
@@ -11,7 +12,10 @@ async function loadFolderFiles() {
     if (!response.ok) throw new Error('JSON 파일을 불러오는 데 실패했습니다.');
     folderFiles = await response.json();
     console.log("[DEBUG] Loaded folderFiles:", folderFiles);
-    changeFolder(); // 데이터를 로드한 후 폴더 목록 업데이트
+
+    // 기본 폴더를 Phonics로 설정
+    document.getElementById("folderSelect").value = defaultFolder;
+    changeFolder();
   } catch (error) {
     console.error("폴더 파일 JSON 로드 오류:", error);
   }
@@ -28,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const audioList = document.getElementById("audioList");
   const playlistContainer = document.querySelector(".playlist");
 
-  let currentFolder = folderSelect.value;
+  let currentFolder = defaultFolder;
   let audioFiles = [];
   let currentIndex = 0;
 
