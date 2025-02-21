@@ -48,6 +48,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             currentTrackLabel.textContent = `현재 재생 중: ${fileName}`;
             updatePlaylistView();
             audioPlayer.play();
+
+      // 재생 목록 스크롤 위치 조정
+      const liElement = audioList.children[currentIndex];
+      if (liElement) {
+        const liRect = liElement.getBoundingClientRect();
+        const containerRect = playlistContainer.getBoundingClientRect();
+        const liOffsetFromContainerTop = liRect.top - containerRect.top;
+        const liHeight = liElement.offsetHeight;
+        const desiredScrollTop = playlistContainer.scrollTop + (liOffsetFromContainerTop - 2 * liHeight);
+        playlistContainer.scrollTo({
+          top: Math.max(desiredScrollTop, 0),
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
         }
     };
 
