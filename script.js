@@ -1,24 +1,30 @@
 'use strict';
 
 // -----------------------------------
-// [1] JSON 데이터 로드
+// [1] 초기 폴더 및 파일 목록 정의 (script1처럼 내부에서 정의)
 // -----------------------------------
-let folderFiles = {};
+let folderFiles = {
+  "Phonics": ["Phonics_1~10.mp3", "Phonics_11~20.mp3"],
+  "Rookie & Rising Star": ["Rookie_1~20.mp3", "Rising Star 3_244~263.mp3"],
+  "All-Star & MVP": ["All-Star 5_1~30.mp3", "MVP 7_1280~1309.mp3"],
+  "중고등 Level 1~2": ["중고등 Level 1_1~30.mp3", "중고등 Level 2_539~568.mp3"],
+  "중고등 Level 3~4": ["중고등 Level 3_1~30.mp3", "중고등 Level 4_613~642.mp3"],
+  "중고등 Level 5~6": ["중고등 Level 5_1~30.mp3", "중고등 Level 6_817~846.mp3"],
+  "중고등 Level 7~9": ["중고등 Level 7_1~30.mp3", "중고등 Level 8_825~854.mp3"]
+};
+
 const defaultFolder = "Phonics"; // 첫 화면에서 기본 폴더 설정
 
 async function loadFolderFiles() {
   try {
     const response = await fetch('folderFiles.json');
     if (!response.ok) throw new Error('JSON 파일을 불러오는 데 실패했습니다.');
-    folderFiles = await response.json();
+    folderFiles = await response.json(); // JSON 파일 로드 후 덮어쓰기
     console.log("[DEBUG] Loaded folderFiles:", folderFiles);
-
-    // 기본 폴더를 Phonics로 설정
-    document.getElementById("folderSelect").value = defaultFolder;
-    changeFolder();
   } catch (error) {
-    console.error("폴더 파일 JSON 로드 오류:", error);
+    console.error("폴더 파일 JSON 로드 오류, 기본 데이터 사용:", error);
   }
+  changeFolder(); // 파일 목록 갱신
 }
 
 // -----------------------------------
@@ -57,37 +63,16 @@ document.addEventListener('DOMContentLoaded', () => {
       currentTrackLabel.textContent = `현재 재생 중: ${fileName}`;
       updatePlaylistView();
       audioPlayer.play();
-
-      // 재생 목록 스크롤 위치 조정
-      const liElement = audioList.children[currentIndex];
-      if (liElement) {
-        const liRect = liElement.getBoundingClientRect();
-        const containerRect = playlistContainer.getBoundingClientRect();
-        const liOffsetFromContainerTop = liRect.top - containerRect.top;
-        const liHeight = liElement.offsetHeight;
-        const desiredScrollTop = playlistContainer.scrollTop + (liOffsetFromContainerTop - 2 * liHeight);
-        playlistContainer.scrollTo({
-          top: Math.max(desiredScrollTop, 0),
-          behavior: 'smooth'
-        });
-      }
     }
   };
 
-  const playNextTrack = () => {
-    if (currentIndex + 1 < audioFiles.length) {
-      playTrack(currentIndex + 1);
-    }
-  };
-
-  // 폴더 선택 시, 해당 폴더의 첫 번째 파일이 목록에 표시되도록 변경
   const changeFolder = () => {
     currentFolder = folderSelect.value;
     audioFiles = folderFiles[currentFolder] || [];
-    currentIndex = 0; // 새 폴더에서는 항상 첫 번째 파일을 기준으로 함
+    currentIndex = 0;
 
     updatePlaylistView();
-    playlistContainer.scrollTop = 0; // 목록 스크롤을 최상단으로 초기화
+    playlistContainer.scrollTop = 0;
 
     if (audioFiles.length > 0) {
       const fileName = audioFiles[0];
@@ -100,13 +85,13 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const initEventListeners = () => {
-    audioPlayer.addEventListener("ended", playNextTrack);
     folderSelect.addEventListener("change", changeFolder);
   };
 
   const init = async () => {
     initEventListeners();
-    await loadFolderFiles(); // JSON 데이터 로드 후 초기 폴더 설정
+    changeFolder(); // 기본 폴더 설정 후 파일 표시
+    await loadFolderFiles(); // JSON 데이터 로드 후 갱신
   };
 
   init();
