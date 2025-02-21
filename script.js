@@ -1,7 +1,7 @@
 'use strict';
 
 // -----------------------------------
-// [1] 초기 폴더 및 파일 목록 정의 (script1처럼 전체 리스트 포함)
+// [1] 초기 폴더 및 파일 목록 정의
 // -----------------------------------
 let folderFiles = {
   "Phonics": ["Phonics_1~10.mp3", "Phonics_11~20.mp3", "Phonics_21~30.mp3", "Phonics_31~40.mp3"],
@@ -39,29 +39,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const playlistContainer = document.querySelector(".playlist");
 
   let currentFolder = defaultFolder;
-  let audioFiles = [];
+  let audioFiles = folderFiles[defaultFolder] || [];
   let currentIndex = 0;
 
   const updatePlaylistView = () => {
     audioList.innerHTML = "";
-    for (const folder in folderFiles) {
-      folderFiles[folder].forEach((file, i) => {
-        const li = document.createElement("li");
-        li.textContent = file;
-        li.addEventListener("click", () => playTrack(i, folder));
-        if (folder === currentFolder && i === currentIndex) {
-          li.classList.add("active");
-        }
-        audioList.appendChild(li);
-      });
-    }
+    audioFiles.forEach((file, i) => {
+      const li = document.createElement("li");
+      li.textContent = file;
+      li.addEventListener("click", () => playTrack(i));
+      if (i === currentIndex) {
+        li.classList.add("active");
+      }
+      audioList.appendChild(li);
+    });
   };
 
-  const playTrack = (index, folder) => {
-    if (index >= 0 && index < folderFiles[folder].length) {
-      currentFolder = folder;
+  const playTrack = (index) => {
+    if (index >= 0 && index < audioFiles.length) {
       currentIndex = index;
-      const fileName = folderFiles[currentFolder][currentIndex];
+      const fileName = audioFiles[currentIndex];
       audioPlayer.src = `${baseFolderPath}${currentFolder}/${fileName}`;
       currentTrackLabel.textContent = `현재 재생 중: ${fileName}`;
       updatePlaylistView();
@@ -73,18 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
     currentFolder = folderSelect.value;
     audioFiles = folderFiles[currentFolder] || [];
     currentIndex = 0;
-
     updatePlaylistView();
     playlistContainer.scrollTop = 0;
-
-    if (audioFiles.length > 0) {
-      const fileName = audioFiles[0];
-      currentTrackLabel.textContent = `현재 재생 중: ${fileName}`;
-      audioPlayer.src = `${baseFolderPath}${currentFolder}/${fileName}`;
-    } else {
-      currentTrackLabel.textContent = "현재 재생 중: 없음";
-      audioPlayer.src = "";
-    }
   };
 
   const initEventListeners = () => {
@@ -93,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const init = async () => {
     initEventListeners();
-    updatePlaylistView(); // 전체 리스트를 바로 표시
+    updatePlaylistView(); // 초기 폴더 Phonics 파일 표시
     await loadFolderFiles(); // JSON 데이터 로드 후 갱신
   };
 
