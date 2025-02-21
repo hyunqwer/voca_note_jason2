@@ -1,16 +1,16 @@
 'use strict';
 
 // -----------------------------------
-// [1] 초기 폴더 및 파일 목록 정의 (script1처럼 내부에서 정의)
+// [1] 초기 폴더 및 파일 목록 정의 (script1처럼 전체 리스트 포함)
 // -----------------------------------
 let folderFiles = {
-  "Phonics": ["Phonics_1~10.mp3", "Phonics_11~20.mp3"],
-  "Rookie & Rising Star": ["Rookie_1~20.mp3", "Rising Star 3_244~263.mp3"],
-  "All-Star & MVP": ["All-Star 5_1~30.mp3", "MVP 7_1280~1309.mp3"],
-  "중고등 Level 1~2": ["중고등 Level 1_1~30.mp3", "중고등 Level 2_539~568.mp3"],
-  "중고등 Level 3~4": ["중고등 Level 3_1~30.mp3", "중고등 Level 4_613~642.mp3"],
-  "중고등 Level 5~6": ["중고등 Level 5_1~30.mp3", "중고등 Level 6_817~846.mp3"],
-  "중고등 Level 7~9": ["중고등 Level 7_1~30.mp3", "중고등 Level 8_825~854.mp3"]
+  "Phonics": ["Phonics_1~10.mp3", "Phonics_11~20.mp3", "Phonics_21~30.mp3", "Phonics_31~40.mp3"],
+  "Rookie & Rising Star": ["Rookie_1~20.mp3", "Rookie_21~40.mp3", "Rising Star 3_244~263.mp3", "Rising Star 4_928~947.mp3"],
+  "All-Star & MVP": ["All-Star 5_1~30.mp3", "All-Star 5_31~60.mp3", "MVP 7_1280~1309.mp3", "MVP 7_1310~1339.mp3"],
+  "중고등 Level 1~2": ["중고등 Level 1_1~30.mp3", "중고등 Level 1_31~60.mp3", "중고등 Level 2_539~568.mp3", "중고등 Level 2_569~598.mp3"],
+  "중고등 Level 3~4": ["중고등 Level 3_1~30.mp3", "중고등 Level 3_31~60.mp3", "중고등 Level 4_613~642.mp3", "중고등 Level 4_643~672.mp3"],
+  "중고등 Level 5~6": ["중고등 Level 5_1~30.mp3", "중고등 Level 5_31~60.mp3", "중고등 Level 6_817~846.mp3", "중고등 Level 6_847~876.mp3"],
+  "중고등 Level 7~9": ["중고등 Level 7_1~30.mp3", "중고등 Level 7_31~60.mp3", "중고등 Level 8_825~854.mp3", "중고등 Level 9_1476~1505.mp3"]
 };
 
 const defaultFolder = "Phonics"; // 첫 화면에서 기본 폴더 설정
@@ -44,21 +44,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const updatePlaylistView = () => {
     audioList.innerHTML = "";
-    audioFiles.forEach((file, i) => {
-      const li = document.createElement("li");
-      li.textContent = file;
-      li.addEventListener("click", () => playTrack(i));
-      if (i === currentIndex) {
-        li.classList.add("active");
-      }
-      audioList.appendChild(li);
-    });
+    for (const folder in folderFiles) {
+      folderFiles[folder].forEach((file, i) => {
+        const li = document.createElement("li");
+        li.textContent = file;
+        li.addEventListener("click", () => playTrack(i, folder));
+        if (folder === currentFolder && i === currentIndex) {
+          li.classList.add("active");
+        }
+        audioList.appendChild(li);
+      });
+    }
   };
 
-  const playTrack = (index) => {
-    if (index >= 0 && index < audioFiles.length) {
+  const playTrack = (index, folder) => {
+    if (index >= 0 && index < folderFiles[folder].length) {
+      currentFolder = folder;
       currentIndex = index;
-      const fileName = audioFiles[currentIndex];
+      const fileName = folderFiles[currentFolder][currentIndex];
       audioPlayer.src = `${baseFolderPath}${currentFolder}/${fileName}`;
       currentTrackLabel.textContent = `현재 재생 중: ${fileName}`;
       updatePlaylistView();
@@ -90,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const init = async () => {
     initEventListeners();
-    changeFolder(); // 기본 폴더 설정 후 파일 표시
+    updatePlaylistView(); // 전체 리스트를 바로 표시
     await loadFolderFiles(); // JSON 데이터 로드 후 갱신
   };
 
